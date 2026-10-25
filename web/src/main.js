@@ -129,9 +129,7 @@ function startGame() {
   hud.classList.remove('hidden');
   touchToggle.classList.toggle('hidden', !touchDevice);
   touchPad.classList.toggle('hidden', !touchDevice);
-  void requestFullscreen();
   focusGame();
-  requestPointerLock();
 
   try {
     engine.callMain([
@@ -180,8 +178,8 @@ async function prepareEngine() {
           '',
         ].join('\n'));
         module.FS.writeFile('/config/chocolate-doom.cfg', [
-          'smooth_pixel_scaling 1',
-          'force_software_renderer 0',
+          'smooth_pixel_scaling 0',
+          'force_software_renderer 1',
           'integer_scaling 0',
           'max_scaling_buffer_pixels 64000',
           '',
