@@ -1,7 +1,7 @@
 import './styles.css';
 
 const ASSET_BASE = `${import.meta.env.BASE_URL}engine/`;
-const canvas = document.querySelector('#doom-canvas');
+const canvas = document.querySelector('#canvas');
 const gameRoot = document.querySelector('#game-root');
 const boot = document.querySelector('#boot');
 const bootStatus = document.querySelector('#boot-status');
