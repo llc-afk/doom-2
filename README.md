@@ -1,17 +1,20 @@
-# Doom Wasm
+# Freedoom Phase 2 no navegador
 
-Browser-playable Chocolate Doom compiled to WebAssembly, with `freedoom2.wad` bundled as the default redistributable IWAD. The page contains only a full-viewport canvas and starts automatically after the bundled assets load. No proprietary Doom data is included in this repository.
+Chocolate Doom compilado para WebAssembly, com Freedoom Phase 2 (`freedoom2.wad`) como conteúdo jogável gratuito. O site apresenta o jogo e inicia automaticamente depois que os arquivos terminam de carregar. Freedoom é compatível com Doom II, mas usa conteúdo original e não inclui os arquivos comerciais de Doom II.
 
-## What This Repo Is For
+O site pode ser publicado pelo GitHub Pages: o workflow em `.github/workflows/pages.yml` compila e publica `web/dist` a cada push na branch `main`. Em **Settings → Pages**, selecione **GitHub Actions** como fonte de publicação. Depois da primeira execução bem-sucedida, o endereço será `https://llc-afk.github.io/doom-2/`.
 
-- Primary use: embed the page in an iframe; bundled Freedoom 2 starts automatically.
-- Advanced use: rebuild the Doom engine itself as WebAssembly after engine-side changes.
+## Sobre o projeto
+
+- Jogue Freedoom Phase 2 no navegador ou incorpore o site em um iframe.
+- O jogo é executado localmente no navegador usando Chocolate Doom e WebAssembly.
+- Para alterar o motor, recompile os arquivos WebAssembly seguindo as instruções abaixo.
 
 If you only want to play or test the project locally, you usually do not need to care about `build:wasm`.
 
-## Quick Start
+## Executar localmente
 
-This is the main workflow for someone who just wants to run the game.
+Com Node.js e npm instalados, execute:
 
 ### Requirements
 
@@ -36,16 +39,16 @@ Then:
 
 The prebuilt browser engine files under `web/public/engine/` are intentionally committed so a fresh clone can run without rebuilding the engine.
 
-## Controls
+## Controles
 
-- WASD or arrow keys: move forward/backward and turn (W/S or Up/Down; A/D or Left/Right)
-- `Ctrl`: fire
-- `Space`: use / open
-- `Shift`: run
-- Click the canvas: focus keyboard input and resume audio
-- The cursor remains visible and free to leave the iframe; gameplay uses the keyboard.
+- `W`, `A`, `S`, `D` ou setas: movimentar e virar
+- `Ctrl`: disparar
+- `Espaço`: usar / abrir
+- `Shift`: correr
+- Clique no jogo para ativar o teclado e o áudio.
+- Use o botão **Tela cheia** para expandir o jogo.
 
-## Local iframe test
+## Incorporação em iframe
 
 Run `npm run dev`, then serve this HTML from a separate local page (for example, save it as `iframe-test.html` in a temporary folder and run `python -m http.server 8080` there). Open `http://localhost:8080/iframe-test.html`:
 
@@ -76,7 +79,7 @@ For a production test, run `npm run build` followed by `npm run preview` and cha
 
 Only bundled Freedoom is loaded. There is no upload flow, custom IWAD selection, or pointer capture. Diagnostics go to the browser console; savegames remain in memory for the current session.
 
-## Commands
+## Comandos
 
 ### `npm run dev`
 

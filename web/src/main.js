@@ -2,7 +2,37 @@ import './styles.css';
 
 const ENGINE_FILE_BASE = `${import.meta.env.BASE_URL}engine/`;
 const canvas = document.querySelector('#doom-canvas');
+const loadingOverlay = document.querySelector('#loading-overlay');
+const loadingMessage = document.querySelector('#loading-message');
+const gameStatus = document.querySelector('#game-status');
+const statusLight = document.querySelector('#status-light');
+const fullscreenButton = document.querySelector('#fullscreen-button');
 let engine;
+
+function setGameState(state, message) {
+  gameStatus.textContent = message;
+  statusLight.classList.toggle('ready', state === 'ready');
+  statusLight.classList.toggle('error', state === 'error');
+  if (state === 'ready') loadingOverlay.classList.add('hidden');
+  if (state === 'error') loadingMessage.textContent = 'Não foi possível carregar. Atualize a página para tentar novamente.';
+}
+
+fullscreenButton.addEventListener('click', async () => {
+  try {
+    const gameCard = document.querySelector('.game-card');
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await gameCard.requestFullscreen();
+    canvas.focus({ preventScroll: true });
+  } catch (error) {
+    console.warn('Fullscreen is not available in this browser.', error);
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  const fullscreen = Boolean(document.fullscreenElement);
+  fullscreenButton.setAttribute('aria-label', fullscreen ? 'Sair da tela cheia' : 'Entrar em tela cheia');
+  fullscreenButton.querySelector('span').textContent = fullscreen ? 'SAIR DA TELA CHEIA' : 'TELA CHEIA';
+});
 
 function resumeAudio() {
   const context = engine?.SDL2?.audioContext;
@@ -94,9 +124,11 @@ async function launchEngine() {
     } catch (error) {
       if (error !== 'unwind' && error !== 'SimulateInfiniteLoop') throw error;
     }
+    setGameState('ready', 'JOGO PRONTO');
     canvas.focus({ preventScroll: true });
   } catch (error) {
     console.error('Failed to start Freedoom:', error);
+    setGameState('error', 'ERRO AO CARREGAR');
   }
 }
 
