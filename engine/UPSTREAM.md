@@ -1,14 +1,23 @@
 # Upstream Provenance
 
-## Chocolate Doom
+## Crispy Doom
 
-- Upstream: `https://github.com/chocolate-doom/chocolate-doom`
-- Vendored commit: `3e0cd5dc0cd0d5b6788100a2fbc1cdd4ce014b35`
+- Upstream: `https://github.com/fabiangreffrath/crispy-doom`
+- Vendored release: `crispy-doom-7.2`
+- Vendored commit: `fdeabe4c23a833534b70aa84a22f1685aae7125d`
 - License: GPL-2.0-or-later
 - Local changes:
-  - Emscripten runtime exports fixed for modern builds
-  - Browser pause/resume entry points added
-  - Doom main loop switched to `emscripten_set_main_loop_arg()`
+  - Doom's blocking main loop is driven by `emscripten_set_main_loop()` in the browser
+  - SDL audio header included for the SDL2 WebAssembly build
+  - `EMULATE_FUNCTION_POINTER_CASTS` enabled for browser runtime compatibility
+  - High-resolution rendering enabled by default (`crispy_hires 1`, 640×400)
+
+## Legacy Chocolate Doom source
+
+The repository also retains the previously vendored Chocolate Doom source at
+`engine/vendor/chocolate-doom` (commit
+`3e0cd5dc0cd0d5b6788100a2fbc1cdd4ce014b35`, GPL-2.0-or-later). It is no longer
+used to build the deployed browser engine.
 
 ## Freedoom
 
@@ -18,16 +27,8 @@
 - Default IWAD shipped here: `freedoom2.wad`
 - License: see `licenses/FREEDOOM-COPYING.txt`
 
-## Browser launcher binary
+## Browser engine binary
 
-The web page currently uses the tested WebAssembly launcher and engine bundle
-from the sibling `doom-web` project, with Freedoom Phase 2 loaded as its IWAD.
-The binary is distributed under GPL-2.0. Its corresponding source provenance
-is documented in `doom-web` at
-`https://github.com/llc-afk/doom-web/blob/main/README.md`:
-
-- Deployment bundle: `Saketh-Chandra/doom-wasm-pwa@5b1e1fe7385b6f0b19d60dece6adbf88f6842e20`
-- Source revision: `Saketh-Chandra/doom-wasm-pwa@a77edfd8bbc7`
-- Upstream port: `https://github.com/cloudflare/doom-wasm`
-
-The corresponding license is included in `licenses/CHOCOLATE-DOOM-GPL-2.0.md`.
+The public `crispy-doom.js` and `crispy-doom.wasm` bundle is built from the
+vendored source using `npm run build:wasm`. The GPL-2.0 text is included in
+`engine/vendor/crispy-doom/COPYING.md`.

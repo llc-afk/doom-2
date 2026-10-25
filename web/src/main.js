@@ -170,7 +170,7 @@ function startGame() {
     window.callMain([
       '-iwad', 'freedoom2.wad',
       '-width', '800', '-height', '600',
-      '-nogui', '-nomusic',
+      '-nogui',
       '-config', 'default.cfg',
       '-extraconfig', 'chocolate-doom.cfg',
       '-savedir', '/savefiles',
@@ -229,7 +229,7 @@ window.Module = {
 
 log('[boot] carregando motor…');
 const engineScript = document.createElement('script');
-engineScript.src = `${ASSET_BASE}websockets-doom.js`;
+engineScript.src = `${ASSET_BASE}crispy-doom.js`;
 engineScript.onerror = () => {
   setStatus('Erro ao carregar o motor');
   startButton.textContent = 'ERRO AO CARREGAR';

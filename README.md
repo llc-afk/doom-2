@@ -1,6 +1,6 @@
 # Freedoom Phase 2 no navegador
 
-Jogue Freedoom Phase 2 (`freedoom2.wad`) no navegador. O motor, a tela de início e os controles usam o mesmo launcher testado no projeto `doom-web`; este site carrega a campanha Phase 2, compatível com Doom II. Freedoom usa conteúdo original e não inclui os arquivos comerciais de Doom II.
+Jogue Freedoom Phase 2 (`freedoom2.wad`) no navegador. O site usa Crispy Doom compilado para WebAssembly, com renderização interna em alta resolução (640×400). Freedoom usa conteúdo original e não inclui os arquivos comerciais de Doom II.
 
 O site pode ser publicado pelo GitHub Pages: o workflow em `.github/workflows/pages.yml` compila e publica `web/dist` a cada push na branch `main`. Em **Settings → Pages**, selecione **GitHub Actions** como fonte de publicação. Depois da primeira execução bem-sucedida, o endereço será `https://llc-afk.github.io/doom-2/`.
 
@@ -50,7 +50,7 @@ The prebuilt browser engine and game files under `web/public/engine/` are intent
 - Celular e tablet: use os controles de toque na tela.
 - Use o botão **Tela cheia** para jogar em tela cheia.
 
-A imagem usa a escala 800×600 do `doom-web` e fica centralizada em proporção 4:3 para mostrar a tela inteira.
+A imagem mantém a tela inteira e a proporção correta, com barras pretas quando a janela não tem proporção 4:3.
 
 ## Incorporação em iframe
 
@@ -106,13 +106,12 @@ Use this when:
 
 Rebuilds the Doom engine itself for the browser.
 
-This compiles the Chocolate Doom C code into:
-- `web/public/engine/chocolate-doom.js`
-- `web/public/engine/chocolate-doom.wasm`
-- `web/public/engine/chocolate-doom.data`
+This compiles Crispy Doom into:
+- `web/public/engine/crispy-doom.js`
+- `web/public/engine/crispy-doom.wasm`
 
 Use this only when:
-- you changed engine source under `engine/vendor/chocolate-doom`
+- you changed engine source under `engine/vendor/crispy-doom`
 - you changed the Emscripten build in `engine/scripts/build_wasm.sh`
 - you changed default engine-side assets like `engine/assets/freedoom2.wad`
 
@@ -129,7 +128,7 @@ It intentionally keeps the tracked `web/public/engine/` bundle.
 ## Project Layout
 
 - `web/`: minimal Vite embed, automatic startup, keyboard input and audio
-- `engine/`: vendored Chocolate Doom source, default Freedoom asset, build scripts
+- `engine/`: vendored Crispy Doom source, default Freedoom asset, build scripts
 - `licenses/`: license texts and attribution notices
 
 ## Advanced: Rebuilding the Engine as WebAssembly
@@ -169,7 +168,7 @@ Notes:
 
 - `.emsdk/` and `.tooling/` are local prerequisites and are intentionally ignored by Git.
 - On a fresh Emscripten setup, the first wasm build may also download the SDL2 port into the local Emscripten cache.
-- The build preloads `engine/assets/freedoom2.wad` into `/iwads/freedoom2.wad` inside the Emscripten filesystem.
+- The browser launcher preloads `freedoom2.wad` into the Emscripten filesystem before starting the engine.
 
 ## Production Build
 
