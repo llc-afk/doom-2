@@ -80,7 +80,13 @@ function sendKey(type, code) {
     key, code: eventCode, keyCode, which: keyCode,
     bubbles: true, cancelable: true,
   });
-  canvas.dispatchEvent(event);
+  try {
+    Object.defineProperty(event, 'keyCode', { get: () => keyCode });
+    Object.defineProperty(event, 'which', { get: () => keyCode });
+  } catch {
+    // The event already exposes these values in browsers that support them.
+  }
+  document.dispatchEvent(event);
 }
 
 for (const button of touchPad.querySelectorAll('[data-key]')) {
@@ -159,7 +165,7 @@ async function prepareEngine() {
     const { default: createDoomModule } = await import(/* @vite-ignore */ `${ENGINE_FILE_BASE}chocolate-doom.js`);
     engine = await createDoomModule({
       canvas,
-      keyboardListeningElement: canvas,
+      keyboardListeningElement: document,
       elementPointerLock: true,
       locateFile: (path) => `${ENGINE_FILE_BASE}${path}`,
       noInitialRun: true,
