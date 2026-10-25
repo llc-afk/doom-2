@@ -1,14 +1,14 @@
 # Freedoom Phase 2 no navegador
 
-Chocolate Doom compilado para WebAssembly, com Freedoom Phase 2 (`freedoom2.wad`) como conteúdo jogável gratuito. O site apresenta o jogo e inicia automaticamente depois que os arquivos terminam de carregar. Freedoom é compatível com Doom II, mas usa conteúdo original e não inclui os arquivos comerciais de Doom II.
+Jogue Freedoom Phase 2 (`freedoom2.wad`) no navegador. O motor, a tela de início e os controles usam o mesmo launcher testado no projeto `doom-web`; este site carrega a campanha Phase 2, compatível com Doom II. Freedoom usa conteúdo original e não inclui os arquivos comerciais de Doom II.
 
 O site pode ser publicado pelo GitHub Pages: o workflow em `.github/workflows/pages.yml` compila e publica `web/dist` a cada push na branch `main`. Em **Settings → Pages**, selecione **GitHub Actions** como fonte de publicação. Depois da primeira execução bem-sucedida, o endereço será `https://llc-afk.github.io/doom-2/`.
 
 ## Sobre o projeto
 
 - Jogue Freedoom Phase 2 no navegador ou incorpore o site em um iframe.
-- O jogo é executado localmente no navegador usando Chocolate Doom e WebAssembly.
-- Para alterar o motor, recompile os arquivos WebAssembly seguindo as instruções abaixo.
+- O motor WebAssembly e o arquivo Freedoom são servidos pelo próprio site.
+- Clique em **JOGAR** para abrir a tela de título do jogo.
 
 If you only want to play or test the project locally, you usually do not need to care about `build:wasm`.
 
@@ -34,10 +34,10 @@ npm run dev
 Then:
 
 1. Open the local URL printed by Vite.
-2. Wait for the bundled assets to load; the game starts automatically.
-3. Click the canvas to focus input and enable audio if required by the browser.
+2. Wait for the engine and game data to load.
+3. Click **JOGAR**; the normal Doom title menu appears. Click the game view to capture the mouse.
 
-The prebuilt browser engine files under `web/public/engine/` are intentionally committed so a fresh clone can run without rebuilding the engine.
+The prebuilt browser engine and game files under `web/public/engine/` are intentionally committed so a fresh clone can run without rebuilding the engine.
 
 ## Controles
 
@@ -50,7 +50,7 @@ The prebuilt browser engine files under `web/public/engine/` are intentionally c
 - Celular e tablet: use os controles de toque na tela.
 - Use o botão **Tela cheia** para jogar em tela cheia.
 
-A tela é exibida em 800×600 com escala suave e preserva a proporção do jogo para não cortar a barra inferior nem as laterais. Como no `doom-web`, o motor continua desenhando a arte no tamanho clássico de Doom antes de ampliá-la.
+A imagem usa a escala 800×600 do `doom-web` e fica centralizada em proporção 4:3 para mostrar a tela inteira.
 
 ## Incorporação em iframe
 
@@ -81,7 +81,7 @@ Check that the game appears without pressing Play, the frame resizes without scr
 
 For a production test, run `npm run build` followed by `npm run preview` and change the iframe URL to the preview URL (normally `http://127.0.0.1:4173/`).
 
-Only bundled Freedoom is loaded. There is no upload flow, custom IWAD selection, or pointer capture. Diagnostics go to the browser console; savegames remain in memory for the current session.
+Only the bundled Freedoom Phase 2 data is loaded. There is no upload flow or custom IWAD selection. The loading panel displays engine diagnostics; savegames remain in memory for the current session.
 
 ## Comandos
 

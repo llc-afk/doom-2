@@ -1,51 +1,55 @@
 import './styles.css';
 
-const ENGINE_FILE_BASE = `${import.meta.env.BASE_URL}engine/`;
+const ASSET_BASE = `${import.meta.env.BASE_URL}engine/`;
 const canvas = document.querySelector('#doom-canvas');
 const gameRoot = document.querySelector('#game-root');
 const boot = document.querySelector('#boot');
 const bootStatus = document.querySelector('#boot-status');
 const startButton = document.querySelector('#start-button');
+const bootLog = document.querySelector('#boot-log');
 const hud = document.querySelector('#hud');
 const fullscreenButton = document.querySelector('#fullscreen-button');
 const touchPad = document.querySelector('#touch-pad');
 const touchToggle = document.querySelector('#touch-toggle');
 const touchDevice = matchMedia('(pointer: coarse)').matches || innerWidth < 760;
-let engine;
+const preloadFiles = ['freedoom2.wad', 'default.cfg', 'chocolate-doom.cfg'];
+let ready = false;
 let started = false;
 
-function showStatus(message) {
-  if (message) bootStatus.textContent = message.toUpperCase();
+function log(message, error = false) {
+  const row = document.createElement('div');
+  row.className = error ? 'error' : '';
+  row.textContent = String(message);
+  bootLog.appendChild(row);
+  bootLog.scrollTop = bootLog.scrollHeight;
+}
+
+function setStatus(message) {
+  if (message) bootStatus.textContent = String(message).toUpperCase();
 }
 
 function focusGame() {
   canvas.focus({ preventScroll: true });
-  const audioContext = engine?.SDL2?.audioContext;
-  if (audioContext && audioContext.state !== 'running' && audioContext.state !== 'closed') {
-    audioContext.resume().catch((error) => console.warn('Unable to resume audio.', error));
-  }
+  const context = window.Module?.SDL2?.audioContext;
+  if (context && context.state === 'suspended') context.resume().catch((error) => log(error, true));
 }
 
-function requestPointerLock() {
-  if (touchDevice || document.pointerLockElement === canvas || !canvas.requestPointerLock) return;
+function enterFullscreen() {
+  if (document.fullscreenElement) return;
+  const request = gameRoot.requestFullscreen || gameRoot.webkitRequestFullscreen;
   try {
-    const result = canvas.requestPointerLock();
-    result?.catch?.((error) => console.info('Pointer lock is unavailable.', error));
+    const result = request?.call(gameRoot);
+    result?.catch?.((error) => log(`Tela cheia indisponível: ${error}`, true));
   } catch (error) {
-    console.info('Pointer lock is unavailable.', error);
+    log(`Tela cheia indisponível: ${error}`, true);
   }
-}
-
-function requestFullscreen() {
-  const request = document.fullscreenElement
-    ? document.exitFullscreen?.call(document)
-    : gameRoot.requestFullscreen?.call(gameRoot);
-  request?.catch?.((error) => console.info('Fullscreen is unavailable.', error));
-  return request;
 }
 
 fullscreenButton.addEventListener('click', () => {
-  void requestFullscreen();
+  if (document.fullscreenElement) {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    exit?.call(document);
+  } else enterFullscreen();
   focusGame();
 });
 
@@ -56,69 +60,90 @@ document.addEventListener('fullscreenchange', () => {
 });
 
 touchToggle.addEventListener('click', () => {
-  const open = touchPad.classList.contains('hidden');
-  touchPad.classList.toggle('hidden', !open);
-  touchToggle.setAttribute('aria-expanded', String(open));
-  touchToggle.classList.toggle('active', open);
+  const show = touchPad.classList.contains('hidden');
+  touchPad.classList.toggle('hidden', !show);
+  touchToggle.setAttribute('aria-expanded', String(show));
+  touchToggle.classList.toggle('active', show);
 });
 
-const keyEvents = {
-  ArrowUp: ['ArrowUp', 'ArrowUp', 38],
-  ArrowDown: ['ArrowDown', 'ArrowDown', 40],
-  ArrowLeft: ['ArrowLeft', 'ArrowLeft', 37],
-  ArrowRight: ['ArrowRight', 'ArrowRight', 39],
-  KeyA: ['a', 'KeyA', 65],
-  KeyD: ['d', 'KeyD', 68],
-  ControlLeft: ['Control', 'ControlLeft', 17],
-  Space: [' ', 'Space', 32],
-  ShiftLeft: ['Shift', 'ShiftLeft', 16],
+const keys = {
+  ArrowUp: { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
+  ArrowDown: { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
+  ArrowLeft: { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
+  ArrowRight: { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
+  ControlLeft: { key: 'Control', code: 'ControlLeft', keyCode: 17 },
+  Space: { key: ' ', code: 'Space', keyCode: 32 },
+  ShiftLeft: { key: 'Shift', code: 'ShiftLeft', keyCode: 16 },
+  KeyA: { key: 'a', code: 'KeyA', keyCode: 65 },
+  KeyD: { key: 'd', code: 'KeyD', keyCode: 68 },
+  Digit1: { key: '1', code: 'Digit1', keyCode: 49 },
+  Digit2: { key: '2', code: 'Digit2', keyCode: 50 },
+  Digit3: { key: '3', code: 'Digit3', keyCode: 51 },
+  Enter: { key: 'Enter', code: 'Enter', keyCode: 13 },
+  Escape: { key: 'Escape', code: 'Escape', keyCode: 27 },
 };
 
-function sendKey(type, code) {
-  const [key, eventCode, keyCode] = keyEvents[code];
+function sendKey(type, name) {
+  const value = keys[name];
+  if (!value) return;
   const event = new KeyboardEvent(type, {
-    key, code: eventCode, keyCode, which: keyCode,
-    bubbles: true, cancelable: true,
+    key: value.key,
+    code: value.code,
+    keyCode: value.keyCode,
+    which: value.keyCode,
+    bubbles: true,
+    cancelable: true,
   });
   try {
-    Object.defineProperty(event, 'keyCode', { get: () => keyCode });
-    Object.defineProperty(event, 'which', { get: () => keyCode });
+    Object.defineProperty(event, 'keyCode', { get: () => value.keyCode });
+    Object.defineProperty(event, 'which', { get: () => value.keyCode });
   } catch {
-    // The event already exposes these values in browsers that support them.
+    // Some browsers expose these legacy properties as non-configurable.
   }
   document.dispatchEvent(event);
+  canvas.dispatchEvent(event);
 }
 
 for (const button of touchPad.querySelectorAll('[data-key]')) {
-  const code = button.dataset.key;
+  const name = button.dataset.key;
   let held = false;
   const press = (event) => {
     event.preventDefault();
-    if (held || !started) return;
+    if (!started || held) return;
     held = true;
     button.classList.add('pressed');
     focusGame();
-    sendKey('keydown', code);
+    sendKey('keydown', name);
   };
   const release = (event) => {
     event?.preventDefault();
     if (!held) return;
     held = false;
     button.classList.remove('pressed');
-    sendKey('keyup', code);
+    sendKey('keyup', name);
   };
-  button.addEventListener('pointerdown', press);
+  button.addEventListener('pointerdown', (event) => {
+    button.setPointerCapture(event.pointerId);
+    press(event);
+  });
   button.addEventListener('pointerup', release);
   button.addEventListener('pointercancel', release);
   button.addEventListener('lostpointercapture', release);
-  button.addEventListener('pointerdown', (event) => button.setPointerCapture(event.pointerId));
   window.addEventListener('blur', release);
 }
 
 canvas.addEventListener('pointerdown', () => {
   if (!started) return;
   focusGame();
-  requestPointerLock();
+});
+canvas.addEventListener('click', () => {
+  if (!started || touchDevice || document.pointerLockElement === canvas) return;
+  try {
+    const result = canvas.requestPointerLock?.();
+    result?.catch?.(() => {});
+  } catch {
+    // The game remains playable with the keyboard if pointer lock is denied.
+  }
 });
 
 window.addEventListener('keydown', (event) => {
@@ -129,85 +154,85 @@ window.addEventListener('keydown', (event) => {
 });
 
 function startGame() {
-  if (started || !engine) return;
+  if (!ready || started) return;
   started = true;
-  boot.classList.add('hidden');
+  startButton.disabled = true;
+  startButton.textContent = 'INICIANDO…';
+  focusGame();
   hud.classList.remove('hidden');
   touchToggle.classList.toggle('hidden', !touchDevice);
   touchPad.classList.toggle('hidden', !touchDevice);
-  focusGame();
+  if (touchDevice) touchPad.classList.add('show');
+  enterFullscreen();
 
   try {
-    engine.callMain([
-      '-window', '-width', '800', '-height', '600',
-      '-iwad', '/iwads/freedoom2.wad',
-      '-savedir', '/savegames',
-      '-config', '/config/default.cfg',
-      '-extraconfig', '/config/chocolate-doom.cfg',
+    log('[main] iniciando o motor');
+    window.callMain([
+      '-iwad', 'freedoom2.wad',
+      '-width', '800', '-height', '600',
+      '-nogui', '-nomusic',
+      '-config', 'default.cfg',
+      '-extraconfig', 'chocolate-doom.cfg',
+      '-savedir', '/savefiles',
     ]);
+    boot.classList.add('hidden');
   } catch (error) {
-    if (error !== 'unwind' && error !== 'SimulateInfiniteLoop') {
-      console.error('Failed to start Freedoom:', error);
-      started = false;
-      boot.classList.remove('hidden');
-      hud.classList.add('hidden');
-      showStatus('Não foi possível iniciar. Tente novamente.');
-      startButton.disabled = false;
-      startButton.textContent = 'TENTAR NOVAMENTE';
-    }
+    log(`[main] falha ao iniciar: ${error?.message || error}`, true);
+    started = false;
+    startButton.disabled = false;
+    startButton.textContent = 'TENTAR NOVAMENTE';
+    hud.classList.add('hidden');
+    touchPad.classList.add('hidden');
+    document.exitFullscreen?.().catch?.(() => {});
   }
 }
 
 startButton.addEventListener('click', startGame);
 
-async function prepareEngine() {
-  try {
-    const { default: createDoomModule } = await import(/* @vite-ignore */ `${ENGINE_FILE_BASE}chocolate-doom.js`);
-    engine = await createDoomModule({
-      canvas,
-      keyboardListeningElement: document,
-      elementPointerLock: true,
-      locateFile: (path) => `${ENGINE_FILE_BASE}${path}`,
-      noInitialRun: true,
-      preRun: [(module) => {
-        module.FS.mkdir('/config');
-        module.FS.mkdir('/savegames');
-        module.FS.writeFile('/config/default.cfg', [
-          'fullscreen 0',
-          'window_width 800',
-          'window_height 600',
-          'use_mouse 1',
-          'grabmouse 0',
-          'key_strafeleft 97',
-          'key_straferight 100',
-          'mouse_sensitivity 5',
-          '',
-        ].join('\n'));
-        module.FS.writeFile('/config/chocolate-doom.cfg', [
-          'smooth_pixel_scaling 0',
-          'force_software_renderer 1',
-          'integer_scaling 0',
-          'max_scaling_buffer_pixels 64000',
-          '',
-        ].join('\n'));
-      }],
-      print: (text) => console.log(text),
-      printErr: (text) => console.error(text),
-      setStatus: showStatus,
-      onAbort: (reason) => {
-        console.error('Engine aborted:', reason);
-        showStatus('Erro ao carregar o jogo. Atualize a página para tentar novamente.');
-      },
+window.onerror = (message, _source, line) => {
+  log(`ERRO: ${message} (linha ${line})`, true);
+  return false;
+};
+window.addEventListener('unhandledrejection', (event) => {
+  log(`ERRO: ${event.reason?.message || event.reason}`, true);
+});
+
+window.Module = {
+  canvas,
+  noInitialRun: true,
+  noExitRuntime: true,
+  print: (message) => log(message),
+  printErr: (message) => log(message, true),
+  setStatus,
+  monitorRunDependencies: (remaining) => {
+    if (remaining > 0) setStatus(`Carregando jogo (${remaining})`);
+  },
+  preRun: () => {
+    const fs = window.Module.FS;
+    try { fs.mkdir('/savefiles'); } catch {}
+    preloadFiles.forEach((file) => {
+      const path = `${ASSET_BASE}${file}`;
+      log(`[preload] ${file}`);
+      fs.createPreloadedFile('/', file, path, true, true);
     });
-    showStatus('Pronto para jogar');
+  },
+  onRuntimeInitialized: () => {
+    ready = true;
+    setStatus('Pronto para jogar');
     startButton.disabled = false;
     startButton.textContent = 'JOGAR';
-  } catch (error) {
-    console.error('Failed to load Freedoom:', error);
-    showStatus('Falha ao carregar. Atualize a página para tentar novamente.');
-    startButton.disabled = true;
-    startButton.textContent = 'ERRO AO CARREGAR';
-  }
-}
+    log('[runtime] motor pronto');
+  },
+  onAbort: (reason) => log(`[engine] ${reason}`, true),
+  onExit: (status) => log(`[engine] encerrou com código ${status}`, true),
+};
 
-void prepareEngine();
+log('[boot] carregando motor…');
+const engineScript = document.createElement('script');
+engineScript.src = `${ASSET_BASE}websockets-doom.js`;
+engineScript.onerror = () => {
+  setStatus('Erro ao carregar o motor');
+  startButton.textContent = 'ERRO AO CARREGAR';
+  log('[boot] não foi possível carregar o motor', true);
+};
+document.body.appendChild(engineScript);
