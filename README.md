@@ -41,12 +41,16 @@ The prebuilt browser engine files under `web/public/engine/` are intentionally c
 
 ## Controles
 
-- `W`, `A`, `S`, `D` ou setas: movimentar e virar
-- `Ctrl`: disparar
+- Setas: avançar, recuar e virar
+- `A` / `D`: andar de lado
+- `Ctrl` ou botão esquerdo do mouse: disparar
 - `Espaço`: usar / abrir
 - `Shift`: correr
-- Clique no jogo para ativar o teclado e o áudio.
-- Use o botão **Tela cheia** para expandir o jogo.
+- Clique no jogo para capturar o mouse e mirar; `Esc` libera o cursor.
+- Celular e tablet: use os controles de toque na tela.
+- Use o botão **Tela cheia** para jogar em tela cheia.
+
+A tela é exibida em 800×600 com escala suave e preserva a proporção do jogo para não cortar a barra inferior nem as laterais. Como no `doom-web`, o motor continua desenhando a arte no tamanho clássico de Doom antes de ampliá-la.
 
 ## Incorporação em iframe
 

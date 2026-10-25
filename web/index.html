@@ -2,66 +2,49 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b0b0c" />
-    <meta name="description" content="Jogue Freedoom Phase 2, um FPS gratuito compatível com Doom II, direto no navegador." />
-    <title>Freedoom Phase 2 — jogo no navegador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#050505" />
+    <meta name="description" content="Jogue Freedoom Phase 2 no navegador, compatível com Doom II." />
+    <title>Doom II · Freedoom no navegador</title>
   </head>
   <body>
-    <div class="page-shell">
-      <header class="topbar">
-        <a class="brand" href="#inicio" aria-label="Freedoom, início">
-          <span class="brand-mark" aria-hidden="true">F</span>
-          <span>FREEDOOM<span class="brand-dot">.</span></span>
-        </a>
-        <span class="topbar-note">UM CLÁSSICO NO NAVEGADOR</span>
-      </header>
+    <main class="game-root" id="game-root">
+      <section class="screen" id="screen" aria-label="Jogo Doom compatível com Doom II">
+        <canvas id="doom-canvas" tabindex="0" aria-label="Jogo. Use as setas para andar e virar, A e D para andar de lado, Ctrl para atirar e Espaço para usar." oncontextmenu="event.preventDefault()"></canvas>
+        <div class="screen-finish" aria-hidden="true"></div>
 
-      <main id="inicio">
-        <section class="intro" aria-labelledby="page-title">
-          <p class="eyebrow"><span class="live-dot"></span> FASE 2 · COMPATÍVEL COM DOOM II</p>
-          <h1 id="page-title">Entre na<br /><span>ação.</span></h1>
-          <p class="intro-copy">Um FPS de código aberto inspirado nos clássicos. Carregue o jogo e enfrente a invasão direto no navegador.</p>
+        <section class="boot" id="boot" aria-labelledby="boot-title">
+          <p class="boot-kicker">UAC MARS FACILITY · 2145</p>
+          <h1 id="boot-title">DOOM<span> II</span></h1>
+          <p class="boot-copy">FREEDOOM PHASE 2 · COMPATÍVEL COM DOOM II</p>
+          <p class="boot-status" id="boot-status" role="status">CARREGANDO JOGO…</p>
+          <button id="start-button" type="button" disabled>CARREGANDO…</button>
+          <p class="boot-help">Setas: mover e virar <span>·</span> A / D: andar de lado <span>·</span> Ctrl: atirar <span>·</span> Espaço: usar <span>·</span> Shift: correr</p>
+          <p class="boot-license">Conteúdo original e gratuito; não inclui os arquivos comerciais de Doom II.</p>
         </section>
 
-        <section class="game-card" aria-label="Jogo Freedoom Phase 2">
-          <div class="game-toolbar">
-            <div class="game-label"><span class="status-light" id="status-light"></span><span id="game-status" role="status">CARREGANDO JOGO…</span></div>
-            <button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Entrar em tela cheia">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M17 13v4h-4M3 13v4h4" /></svg>
-              <span>TELA CHEIA</span>
-            </button>
-          </div>
-          <div class="game-frame" id="game-frame">
-            <canvas id="doom-canvas" width="320" height="200" tabindex="0" aria-label="Freedoom Phase 2. Clique para controlar o jogo."></canvas>
-            <div class="loading-overlay" id="loading-overlay" aria-live="polite">
-              <span class="loading-mark" aria-hidden="true">F</span>
-              <span id="loading-message">Preparando o jogo</span>
-              <span class="loading-track"><span></span></span>
-            </div>
-          </div>
-          <div class="game-footer"><span>CLIQUE NO JOGO PARA ATIVAR OS CONTROLES</span><span>CHOCOLATE DOOM · WEBASSEMBLY</span></div>
-        </section>
+        <nav class="hud hidden" id="hud" aria-label="Controles do jogo">
+          <button class="hud-button touch-toggle hidden" id="touch-toggle" type="button" aria-label="Mostrar controles de toque" aria-expanded="false">⌖</button>
+          <button class="hud-button" id="fullscreen-button" type="button" aria-label="Entrar em tela cheia">⛶</button>
+        </nav>
 
-        <section class="below-game" aria-label="Como jogar">
-          <div class="controls-block">
-            <p class="section-label">CONTROLES</p>
-            <div class="key-list">
-              <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><i>movimentar e virar</i></span>
-              <span><kbd>CTRL</kbd><i>disparar</i></span>
-              <span><kbd>ESPAÇO</kbd><i>usar / abrir</i></span>
-              <span><kbd>SHIFT</kbd><i>correr</i></span>
-            </div>
+        <div class="touch-pad hidden" id="touch-pad" aria-label="Controles de toque">
+          <div class="touch-group movement">
+            <button data-key="ArrowLeft" aria-label="Virar à esquerda">↶</button>
+            <button data-key="ArrowUp" aria-label="Avançar">▲</button>
+            <button data-key="ArrowRight" aria-label="Virar à direita">↷</button>
+            <button data-key="ArrowDown" aria-label="Recuar">▼</button>
           </div>
-          <aside class="about-block">
-            <p class="section-label">SOBRE O JOGO</p>
-            <p>Freedoom Phase 2 é um jogo completo e gratuito, feito com conteúdo original e compatível com mapas de Doom II. Este projeto não inclui os arquivos comerciais de Doom II.</p>
-            <a href="https://freedoom.github.io/" target="_blank" rel="noreferrer">CONHEÇA O FREEDOOM <span aria-hidden="true">↗</span></a>
-          </aside>
-        </section>
-      </main>
-      <footer class="site-footer"><span>FEITO PARA JOGAR NO NAVEGADOR</span><span>UM PROJETO INDEPENDENTE · CONTEÚDO LIVRE</span></footer>
-    </div>
+          <div class="touch-group actions">
+            <button data-key="KeyA" aria-label="Andar para a esquerda">◀</button>
+            <button data-key="ControlLeft" aria-label="Atirar">ATIRAR</button>
+            <button data-key="KeyD" aria-label="Andar para a direita">▶</button>
+            <button data-key="Space" aria-label="Usar">USAR</button>
+            <button data-key="ShiftLeft" aria-label="Correr">CORRER</button>
+          </div>
+        </div>
+      </section>
+    </main>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
